@@ -1,0 +1,169 @@
+import numpy as np 
+import matplotlib.pyplot as plt
+import random
+import scipy.stats as stats
+
+alpha0, beta0 = 1, 1
+
+
+def r(x) : 
+    return x + 1
+
+def unif(n) : 
+    return [stats.uniform.rvs() for i in range(n)]
+
+def nonunif(n) :
+    nU = []
+    for i in range(n) :
+        tmp = stats.uniform.rvs()
+        if tmp < 0.2 :
+            nU.append(tmp+0.5)
+        else : 
+            nU.append(tmp)
+    return nU
+
+
+
+def simulation(N) : 
+    A, B = [0], [0]
+    An, Bn = 0, 0
+    alpha, beta = alpha0, beta0
+    n = 0 
+    while n < N - 1: 
+        n += 1
+        var_random = random.random()
+
+        if var_random < alpha/(alpha + beta) :
+            alpha = r(alpha)
+            An += 1
+        else :
+            beta = r(beta)
+            Bn += 1
+        A.append(An)
+        B.append(Bn)
+    return np.array(A), np.array(B)
+
+
+
+def simulation_bis(N) : #Sert à comparer les résultats pour 2 valeurs différentes de alpha0
+    A1, B1 = [0], [0]
+    A2, B2 = [0], [0]
+    An1, Bn1, An2, Bn2 = 0, 0, 0, 0
+    alpha, beta = [1,2],[1,1]
+    n = 0 
+    while n < N - 1: 
+        n += 1
+        var_random = random.random()
+
+        if var_random < alpha[0]/(alpha[0] + beta[0]) :
+            alpha[0] = r(alpha[0])
+            An1 += 1
+        else :
+            beta[0] = r(beta[0])
+            Bn1 += 1
+
+        if var_random < alpha[1]/(alpha[1] + beta[1]) :
+            alpha[1] = r(alpha[1])
+            An2 += 1
+        else :
+            beta[1] = r(beta[1])
+            Bn2 += 1
+        
+        A1.append(An1)
+        A2.append(An2)
+        B1.append(Bn1)
+        B2.append(Bn2)
+    return np.array(A1), np.array(B1), np.array(A2), np.array(B2)
+
+def plot(n) :
+    A, B = simulation(n)
+    U = unif(n)
+    nU = nonunif(n)
+    N = np.array([i for i in range(n)])
+    Abis = (1 + A) / (N+2)
+    Bbis = (1 + B) / (N + 2)
+
+
+    plt.subplot(1,2,1)
+    plt.plot(N, A, label = "An")
+    plt.plot(N, B, label = "Bn")
+    plt.plot(N, [A[i] + B[i] for i in N], label = "An + Bn")
+    plt.xlabel('n')
+    plt.legend()
+
+    plt.subplot(1,2,2)
+    plt.plot(N,Abis, label = "(1 + An) / (n+2)")
+    plt.plot(N,Bbis, label = "(1 + Bn) / (n+2)")
+    plt.plot(N, [Abis[i] + Bbis[i] for i in N], label = "(1 + An) / (n+2) + (1 + Bn) / (n+2)")
+    plt.xlabel('n')
+    plt.legend()
+    plt.show()
+
+
+
+    plt.subplot(2,2,1)
+    plt.title("Distribution de la loi uniforme U")
+    plt.hist(U, bins=100, density=True, alpha=1, color='blue')
+    plt.subplot(2,2,2)
+    plt.title("Distribution de la loi non uniforme nU")
+    plt.hist(nU, bins=100, density=True, alpha=1, color='blue')
+    plt.subplot(2,2,3)
+    plt.title("Distribution de la loi An")
+    plt.hist(A, bins=100, density=True, alpha=1, color='blue')
+    plt.subplot(2,2,4)
+    plt.title("Distribution de la loi Bn")
+    plt.hist(B, bins=100, density=True, alpha=1, color='blue')
+
+    plt.show()
+
+
+def plot_bis(n) : #Sert à comparer les résultats pour 2 valeurs différentes de alpha0
+    A1, B1, A2, B2 = simulation_bis(n)
+    U = unif(n)
+    nU = nonunif(n)
+    N = np.array([i for i in range(n)])
+    Abis1 = (1 + A1) / (N+2)
+    Bbis1 = (1 + B1) / (N + 2)
+    Abis2 = (1 + A2) / (N+2)
+    Bbis2 = (1 + B2) / (N + 2)
+
+
+    plt.subplot(1,2,1)
+    plt.plot(N, A1, ls = ':', label = "An1")
+    plt.plot(N, B1, ls =':', label = "Bn1")
+    plt.plot(N, A2, label = "An2")
+    plt.plot(N, B2, label = "Bn2")
+    plt.xlabel('n')
+    plt.legend()
+
+    plt.subplot(1,2,2)
+    plt.plot(N,Abis1, label = "(1 + An1) / (n+2)")
+    plt.plot(N,Bbis1, label = "(1 + Bn1) / (n+2)")
+    plt.plot(N,Abis2, label = "(1 + An2) / (n+2)")
+    plt.plot(N,Bbis2, label = "(1 + Bn2) / (n+2)")
+    plt.xlabel('n')
+    plt.legend()
+    plt.show()
+
+
+    plt.subplot(2,2,1)
+    plt.title("Distribution de la loi An1")
+    plt.hist(A1, bins=100, density=True, alpha=1, color='blue')
+    plt.subplot(2,2,2)
+    plt.title("Distribution de la loi Bn1")
+    plt.hist(B1, bins=100, density=True, alpha=1, color='blue')
+    plt.subplot(2,2,3)
+    plt.title("Distribution de la loi An2")
+    plt.hist(A2, bins=100, density=True, alpha=1, color='blue')
+    plt.subplot(2,2,4)
+    plt.title("Distribution de la loi Bn2")
+    plt.hist(B2, bins=100, density=True, alpha=1, color='blue')
+
+    plt.show()
+
+
+plot(10000)
+plot_bis(10000)
+
+#author
+#https://github.com/andreaMoncelli
