@@ -1,0 +1,80 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Dec 29 16:57:39 2023
+
+@author: douni
+"""
+#IMPORT DES LIBRAIRIES 
+import random
+import matplotlib.pyplot as plt
+import numpy as np
+
+# PARAMETRES INITIAUX
+alpha0 = 1
+beta0 = 1
+N = 50 #nb de simulations
+
+#FONCTION DE RENFORCEMENT 
+def renforcement(x):
+    return x
+
+#CHOIX DU CHEMIN EMPRUNTE
+def choix_chemin(prob_a):
+    rand_num = random.uniform(0, 1)
+    return 'a' if rand_num < prob_a else 'b'
+
+
+
+
+#SIMULATION DE LA MARCHE
+def simulation_fourmiliere(alpha0, beta0):
+    alpha = alpha0
+    beta = beta0
+   
+    An = 0          # nb de passage en a après le n-ième trajet
+    Bn = 0          # nb de passage en b après le n-ième trajet
+   
+    A = []          # suite du nb de passage en a 
+    B = []          # suite du nb de passage en a
+    
+    diff = []       # suite |An-Bn|
+
+    n = 0 
+    while n < N:
+        prob_a = alpha / (alpha + beta)
+        chemin_emprunte = choix_chemin(prob_a)
+        
+
+        if chemin_emprunte == 'a':
+            alpha = renforcement(alpha)
+            An += 1
+            
+        else : 
+            beta = renforcement(beta)
+            Bn += 1
+
+        n += 1
+        
+        diff.append(abs(An - Bn))
+        A.append(An)
+        B.append(Bn)
+
+        
+    return A, B, diff
+
+
+# Exécution de la simulation et tracé
+A, B, diff = simulation_fourmiliere(alpha0, beta0)
+
+plt.plot(range(1, N + 1), A, label='An')
+plt.plot(range(1, N + 1), B, label='Bn')
+plt.xlabel('n')
+plt.ylabel('Nombre de passages en chaque chemin')
+plt.legend()
+plt.show()
+
+plt.plot(range(1, N + 1), diff, label='|An - Bn|')
+plt.xlabel('n')
+plt.ylabel('diff entre le nb de passage en a et b')
+plt.legend()
+plt.show()
